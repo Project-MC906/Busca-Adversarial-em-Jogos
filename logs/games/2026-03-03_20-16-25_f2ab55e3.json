@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-03-03 20:16:25",
+  "game_id": "f2ab55e3",
+  "white_player": "IA-h3",
+  "black_player": "IA-h2",
+  "result": "DRAW",
+  "total_moves": 91,
+  "white_pieces_final": 2,
+  "black_pieces_final": 3,
+  "total_time_s": 59.94587248900007,
+  "avg_time_per_move_s": 0.6587458515274732,
+  "white_avg_time_s": 0.6802816025652527,
+  "black_avg_time_s": 0.6364278050667054,
+  "white_avg_nodes": 12514,
+  "black_avg_nodes": 15592,
+  "white_avg_depth": 8,
+  "black_avg_depth": 8,
+  "notes": "",
+  "moves_count": 91
+}

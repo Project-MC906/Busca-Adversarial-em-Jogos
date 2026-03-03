@@ -13,6 +13,7 @@ import time
 from game.state import GameState
 from game.moves import Move
 from game.constants import WHITE, BLACK, BIT_TO_ROWCOL, ROWCOL_TO_BIT
+from game.chess_notation import rowcol_to_chess, chess_to_rowcol
 from game.bitboard import test_bit, iter_bits
 
 
@@ -49,11 +50,12 @@ def render(state: GameState, highlights: set[int] | None = None) -> str:
         grid[row][col] = 'B' if test_bit(state.kings_bb, sq) else 'b'
 
     lines = []
-    lines.append('    0   1   2   3   4   5   6   7')
+    lines.append('    a   b   c   d   e   f   g   h')
     lines.append('  +---+---+---+---+---+---+---+---+')
     for r, row in enumerate(grid):
         cells = ' | '.join(row)
-        lines.append(f'{r} | {cells} |')
+        row_num = 8 - r
+        lines.append(f'{row_num} | {cells} |')
         lines.append('  +---+---+---+---+---+---+---+---+')
 
     turn_str = 'BRANCAS (w/W)' if state.turn == WHITE else 'PRETAS (b/B)'
@@ -68,21 +70,29 @@ def render(state: GameState, highlights: set[int] | None = None) -> str:
 
 def parse_sq(token: str) -> int | None:
     """
-    Converte 'r,c' ou 'rc' (ex: '3,2' ou '32') para índice de bit.
+    Converte notação de xadrez (ex: 'a8', 'h1') para índice de bit.
+    Também aceita formato antigo 'r,c' (ex: '3,2') por compatibilidade.
     Retorna None se inválido.
     """
-    token = token.strip()
+    token = token.strip().lower()
+    
+    # Tenta notação xadrez primeiro (ex: 'a8')
+    if len(token) == 2 and token[0] in 'abcdefgh' and token[1] in '12345678':
+        rc = chess_to_rowcol(token)
+        if rc:
+            r, c = rc
+            return ROWCOL_TO_BIT.get((r, c))
+    
+    # Tenta formato antigo 'r,c'
     if ',' in token:
         parts = token.split(',')
-    elif len(token) == 2:
-        parts = list(token)
-    else:
-        return None
-    try:
-        r, c = int(parts[0]), int(parts[1])
-    except (ValueError, IndexError):
-        return None
-    return ROWCOL_TO_BIT.get((r, c))
+        try:
+            r, c = int(parts[0]), int(parts[1])
+            return ROWCOL_TO_BIT.get((r, c))
+        except (ValueError, IndexError):
+            pass
+    
+    return None
 
 
 def select_human_move(state: GameState) -> Move | None:
@@ -95,8 +105,10 @@ def select_human_move(state: GameState) -> Move | None:
     for i, m in enumerate(legal):
         from_rc = BIT_TO_ROWCOL[m.from_sq]
         to_rc   = BIT_TO_ROWCOL[m.to_sq]
+        from_chess = rowcol_to_chess(*from_rc)
+        to_chess = rowcol_to_chess(*to_rc)
         caps    = f' (captura {len(m.captured)}x)' if m.is_capture else ''
-        print(f'  [{i}] {from_rc} → {to_rc}{caps}')
+        print(f'  [{i}] {from_chess}{to_chess}{caps}')
 
     while True:
         raw = input('\nEscolha pelo índice ou "origemDestino" (ex: 5,0 -> 4,1): ').strip()
@@ -109,11 +121,16 @@ def select_human_move(state: GameState) -> Move | None:
         except ValueError:
             pass
 
-        # Seleção por coordenadas "r1,c1 r2,c2"
-        parts = raw.replace('->', ' ').replace('→', ' ').split()
-        if len(parts) >= 2:
-            from_sq = parse_sq(parts[0])
-            to_sq   = parse_sq(parts[-1])
+        # Seleção por coordenadas de xadrez "a8h1" ou notação alternativa
+        parts = raw.replace('->', ' ').replace('→', ' ').replace(' ', '').split()
+        if len(parts) == 0:
+            print('Entrada inválida. Tente novamente.')
+            continue
+            
+        raw_clean = parts[0].lower()
+        if len(raw_clean) == 4 and raw_clean[0] in 'abcdefgh' and raw_clean[2] in 'abcdefgh':
+            from_sq = parse_sq(raw_clean[0:2])
+            to_sq = parse_sq(raw_clean[2:4])
             if from_sq is not None and to_sq is not None:
                 candidates = [m for m in legal if m.from_sq == from_sq and m.to_sq == to_sq]
                 if len(candidates) == 1:
@@ -121,7 +138,12 @@ def select_human_move(state: GameState) -> Move | None:
                 if len(candidates) > 1:
                     print('Múltiplas rotas de captura possíveis:')
                     for i, m in enumerate(candidates):
-                        print(f'  [{i}] {m}')
+                        from_rc = BIT_TO_ROWCOL[m.from_sq]
+                        to_rc   = BIT_TO_ROWCOL[m.to_sq]
+                        from_chess = rowcol_to_chess(*from_rc)
+                        to_chess = rowcol_to_chess(*to_rc)
+                        caps    = f' (captura {len(m.captured)}x)' if m.is_capture else ''
+                        print(f'  [{i}] {from_chess}{to_chess}{caps}')
                     try:
                         idx = int(input('Índice: '))
                         if 0 <= idx < len(candidates):
@@ -139,21 +161,48 @@ def play_terminal(
     black_agent=None,
     delay: float = 0.0,
     verbose: bool = True,
-) -> int:
+    white_name: str = "Humano",
+    black_name: str = "Humano",
+    log_game: bool = False,
+    logger = None,
+) -> tuple[int, dict] | int:
     """
-    Executa uma partida no terminal.
+    Executa uma partida no terminal com logging opcional.
 
     Args:
         white_agent: Agente para as brancas (None = humano)
         black_agent: Agente para as pretas  (None = humano)
         delay:       Pausa (s) entre jogadas IA vs IA para legibilidade
         verbose:     Exibe tabuleiro a cada jogada
+        white_name:  Nome/identificação do agente branco
+        black_name:  Nome/identificação do agente preto
+        log_game:    Se True, registra log detalhado do jogo
+        logger:      Instância de GameLogger (se None, usa a global)
 
     Returns:
-        +1 vitória branca, -1 vitória preta, 0 empate
+        Se log_game=False: +1 vitória branca, -1 vitória preta, 0 empate
+        Se log_game=True: (resultado, dict com dados do jogo)
     """
+    from datetime import datetime
+    import uuid
+
+    if log_game:
+        from experiments.logger import get_logger, GameLog, MoveLog
+        if logger is None:
+            logger = get_logger()
+
     state = GameState.initial()
     move_count = 0
+    total_time = 0.0
+    move_logs = []
+    white_times = []
+    black_times = []
+    white_nodes = []
+    black_nodes = []
+    white_depths = []
+    black_depths = []
+
+    game_start = time.perf_counter()
 
     while not state.is_terminal():
         if verbose:
@@ -161,32 +210,69 @@ def play_terminal(
             print(render(state))
 
         agent = white_agent if state.turn == WHITE else black_agent
+        is_white = state.turn == WHITE
 
         if agent is None:
             # Humano
             move = select_human_move(state)
             if move is None:
                 break
+            move_time = 0.0
+            metrics = {}
         else:
             t0 = time.perf_counter()
             move, score, metrics = agent(state)
-            elapsed = time.perf_counter() - t0
+            move_time = time.perf_counter() - t0
+            total_time += move_time
+
+            if is_white:
+                white_times.append(move_time)
+                white_nodes.append(metrics.get("nodes", 0))
+                white_depths.append(metrics.get("depth", 0))
+            else:
+                black_times.append(move_time)
+                black_nodes.append(metrics.get("nodes", 0))
+                black_depths.append(metrics.get("depth", 0))
 
             if verbose:
                 from_rc = BIT_TO_ROWCOL[move.from_sq]
                 to_rc   = BIT_TO_ROWCOL[move.to_sq]
+                from_chess = rowcol_to_chess(*from_rc)
+                to_chess = rowcol_to_chess(*to_rc)
                 caps    = f' (captura {len(move.captured)}x)' if move.is_capture else ''
-                player  = 'BRANCAS' if state.turn == WHITE else 'PRETAS'
-                print(f'\n[IA {player}] {from_rc} → {to_rc}{caps}  '
-                      f'score={score}  depth={metrics.get("depth","?")}  '
+                player  = 'BRANCAS' if is_white else 'PRETAS'
+                print(f'\n[IA {player}] {from_chess}{to_chess}{caps}  '
+                      f'score={metrics.get("score", "?")}  depth={metrics.get("depth","?")}  '
                       f'nodes={metrics.get("nodes","?")}  '
-                      f'time={elapsed:.3f}s')
+                      f'time={move_time:.3f}s')
 
             if delay > 0:
                 time.sleep(delay)
 
+        # Registra movimento se logging ativo
+        if log_game:
+            from_rc = BIT_TO_ROWCOL[move.from_sq]
+            to_rc   = BIT_TO_ROWCOL[move.to_sq]
+            from_chess = rowcol_to_chess(*from_rc)
+            to_chess = rowcol_to_chess(*to_rc)
+            move_notation = f"{from_chess}{to_chess}"
+            move_log = MoveLog(
+                move_number=move_count + 1,
+                player="WHITE" if is_white else "BLACK",
+                move_notation=move_notation,
+                time_s=move_time,
+                nodes_expanded=metrics.get("nodes", 0),
+                depth_reached=metrics.get("depth", 0),
+                score=metrics.get("score", 0),
+                white_pieces=state.white_count,
+                black_pieces=state.black_count,
+            )
+            move_logs.append(move_log)
+
         state = state.apply_move(move)
         move_count += 1
+
+    game_duration = time.perf_counter() - game_start
 
     if verbose:
         print('\n' + '='*50)
@@ -200,4 +286,41 @@ def play_terminal(
             print('\n🤝 EMPATE!')
         print(f'Total de jogadas: {move_count}')
 
-    return state.utility()
+    result = state.utility()
+
+    # Salva log se solicitado
+    if log_game:
+        result_str = 'WHITE_WIN' if result > 0 else ('BLACK_WIN' if result < 0 else 'DRAW')
+        avg_time = game_duration / max(move_count, 1)
+        white_avg_time = sum(white_times) / len(white_times) if white_times else 0.0
+        black_avg_time = sum(black_times) / len(black_times) if black_times else 0.0
+        white_avg_nodes = sum(white_nodes) // len(white_nodes) if white_nodes else 0
+        black_avg_nodes = sum(black_nodes) // len(black_nodes) if black_nodes else 0
+        white_avg_depth = sum(white_depths) // len(white_depths) if white_depths else 0
+        black_avg_depth = sum(black_depths) // len(black_depths) if black_depths else 0
+
+        game_log = GameLog(
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            game_id=str(uuid.uuid4())[:8],
+            white_player=white_name,
+            black_player=black_name,
+            result=result_str,
+            total_moves=move_count,
+            white_pieces_final=state.white_count,
+            black_pieces_final=state.black_count,
+            total_time_s=game_duration,
+            avg_time_per_move_s=avg_time,
+            white_avg_time_s=white_avg_time,
+            black_avg_time_s=black_avg_time,
+            white_avg_nodes=white_avg_nodes,
+            black_avg_nodes=black_avg_nodes,
+            white_avg_depth=white_avg_depth,
+            black_avg_depth=black_avg_depth,
+            moves=move_logs,
+        )
+        logger.save_game(game_log, format="both")
+        if verbose:
+            print(f'\n📝 Log salvo')
+        return result, game_log.to_dict()
+
+    return result

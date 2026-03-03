@@ -1,0 +1,2 @@
+timestamp,game_id,white_player,black_player,result,total_moves,white_pieces_final,black_pieces_final,total_time_s,avg_time_per_move_s,white_avg_time_s,black_avg_time_s,white_avg_nodes,black_avg_nodes,white_avg_depth,black_avg_depth,notes,moves_count
+2026-03-03 20:22:59,f7cb8c4c,h1-White,h1-Black,WHITE_WIN,57,5,0,10.837464052000541,0.19013094828071125,0.18026270837937522,0.20023098089287877,4991,5311,10,11,,57

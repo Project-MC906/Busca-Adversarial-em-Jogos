@@ -12,6 +12,8 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from typing import Callable
+from datetime import datetime
+import uuid
 
 from game.state import GameState
 from game.constants import WHITE, BLACK
@@ -127,20 +129,38 @@ def run_tournament(
     max_moves:   int = 200,
     verbose:     bool = False,
     progress:    bool = True,
+    log_tournament: bool = False,
+    logger = None,
 ) -> TournamentResult:
     """
     Executa `num_games` partidas entre agent_a e agent_b.
     Cada agente joga metade das partidas como brancas e metade como pretas
     para eliminar viés de primeiro jogador.
+    
+    Args:
+        log_tournament: Se True, registra log detalhado do torneio
+        logger: Instância de GameLogger (se None, usa a global)
     """
+    from datetime import datetime
+    import uuid
+    
+    if log_tournament:
+        from experiments.logger import get_logger, TournamentLog, GameLog
+        if logger is None:
+            logger = get_logger()
+    
     result = TournamentResult(name_a=name_a, name_b=name_b)
+    tournament_start = time.perf_counter()
+    tournament_games = []
 
     for i in range(num_games):
         # Alterna lados a cada partida
         if i % 2 == 0:
             white, black = agent_a, agent_b
+            white_name, black_name = name_a, name_b
         else:
             white, black = agent_b, agent_a
+            white_name, black_name = name_b, name_a
 
         if progress:
             print(f'\rPartida {i+1}/{num_games}...', end='', flush=True)
@@ -166,9 +186,58 @@ def run_tournament(
                     result.wins_b += 1
                 else:
                     result.wins_a += 1
+        
+        # Registra jogo no log do torneio
+        if log_tournament:
+            result_str = 'WHITE_WIN' if gr.winner > 0 else ('BLACK_WIN' if gr.winner < 0 else 'DRAW')
+            white_avg_nodes = sum(m.get('nodes', 0) for m in gr.white_metrics) // len(gr.white_metrics) if gr.white_metrics else 0
+            black_avg_nodes = sum(m.get('nodes', 0) for m in gr.black_metrics) // len(gr.black_metrics) if gr.black_metrics else 0
+            white_avg_depth = sum(m.get('depth', 0) for m in gr.white_metrics) // len(gr.white_metrics) if gr.white_metrics else 0
+            black_avg_depth = sum(m.get('depth', 0) for m in gr.black_metrics) // len(gr.black_metrics) if gr.black_metrics else 0
+            white_avg_time = sum(m.get('time_s', 0) for m in gr.white_metrics) / len(gr.white_metrics) if gr.white_metrics else 0
+            black_avg_time = sum(m.get('time_s', 0) for m in gr.black_metrics) / len(gr.black_metrics) if gr.black_metrics else 0
+            
+            game_log = GameLog(
+                timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                game_id=str(uuid.uuid4())[:8],
+                white_player=white_name,
+                black_player=black_name,
+                result=result_str,
+                total_moves=gr.moves,
+                white_pieces_final=0,  # não temos no GameResult ainda
+                black_pieces_final=0,
+                total_time_s=gr.duration_s,
+                avg_time_per_move_s=gr.duration_s / max(gr.moves, 1),
+                white_avg_time_s=white_avg_time,
+                black_avg_time_s=black_avg_time,
+                white_avg_nodes=white_avg_nodes,
+                black_avg_nodes=black_avg_nodes,
+                white_avg_depth=white_avg_depth,
+                black_avg_depth=black_avg_depth,
+                moves=[],
+                notes=f"Partida {i+1} de {num_games} do torneio"
+            )
+            tournament_games.append(game_log)
 
     if progress:
         print()  # newline
+    
+    # Salva torneio se solicitado
+    if log_tournament:
+        tournament_duration = time.perf_counter() - tournament_start
+        tournament_log = TournamentLog(
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            tournament_id=str(uuid.uuid4())[:8],
+            player_a=name_a,
+            player_b=name_b,
+            total_games=num_games,
+            wins_a=result.wins_a,
+            wins_b=result.wins_b,
+            draws=result.draws,
+            duration_s=tournament_duration,
+            games=tournament_games,
+        )
+        logger.save_tournament(tournament_log, format="both")
 
     return result
 

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-03-03 20:22:59",
+  "game_id": "f7cb8c4c",
+  "white_player": "h1-White",
+  "black_player": "h1-Black",
+  "result": "WHITE_WIN",
+  "total_moves": 57,
+  "white_pieces_final": 5,
+  "black_pieces_final": 0,
+  "total_time_s": 10.837464052000541,
+  "avg_time_per_move_s": 0.19013094828071125,
+  "white_avg_time_s": 0.18026270837937522,
+  "black_avg_time_s": 0.20023098089287877,
+  "white_avg_nodes": 4991,
+  "black_avg_nodes": 5311,
+  "white_avg_depth": 10,
+  "black_avg_depth": 11,
+  "notes": "",
+  "moves_count": 57
+}

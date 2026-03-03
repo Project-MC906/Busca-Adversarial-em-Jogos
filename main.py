@@ -12,6 +12,7 @@ Uso:
 
 import argparse
 import sys
+from experiments.logger import init_logger
 
 
 # ── Helpers para criar agentes ────────────────────────────────────────────────
@@ -42,12 +43,16 @@ def cmd_play(args):
     mode       = args.mode
     time_limit = args.time
     use_gui    = getattr(args, 'gui', False)
+    log_game   = getattr(args, 'log', False)
+    logger     = init_logger() if log_game else None
 
     if mode == 'human_vs_ai':
         heuristic = getattr(args, 'heuristic', 'h3')
         ia = _make_agent(heuristic, time_limit)
         white_agent = None   # humano
         black_agent = ia
+        white_name = "Humano"
+        black_name = f"IA-{heuristic}"
         print(f'Modo: Humano (Brancas) vs IA-{heuristic} (Pretas) | tempo={time_limit}s')
 
     elif mode == 'ai_vs_ia':
@@ -56,6 +61,8 @@ def cmd_play(args):
         black_h = getattr(args, 'black', 'h2')
         white_agent = _make_agent(white_h, time_limit)
         black_agent = _make_agent(black_h, time_limit)
+        white_name = f"IA-{white_h}"
+        black_name = f"IA-{black_h}"
         print(f'Modo: IA-{white_h} (Brancas) vs IA-{black_h} (Pretas) | tempo={time_limit}s')
 
     elif mode == 'ai_vs_ai':
@@ -63,6 +70,8 @@ def cmd_play(args):
         black_h = getattr(args, 'black', 'h2')
         white_agent = _make_agent(white_h, time_limit)
         black_agent = _make_agent(black_h, time_limit)
+        white_name = f"IA-{white_h}"
+        black_name = f"IA-{black_h}"
         print(f'Modo: IA-{white_h} (Brancas) vs IA-{black_h} (Pretas) | tempo={time_limit}s')
 
     else:
@@ -74,7 +83,16 @@ def cmd_play(args):
         result = play_gui(white_agent=white_agent, black_agent=black_agent)
     else:
         from ui.terminal import play_terminal
-        result = play_terminal(white_agent=white_agent, black_agent=black_agent)
+        result = play_terminal(
+            white_agent=white_agent,
+            black_agent=black_agent,
+            white_name=white_name,
+            black_name=black_name,
+            log_game=log_game,
+            logger=logger,
+        )
+        if isinstance(result, tuple):
+            result = result[0]
 
     if result > 0:
         print('Resultado: Vitória das Brancas')
@@ -93,6 +111,8 @@ def cmd_tournament(args):
 
     num_games  = args.games
     time_limit = args.time
+    log_tournament = getattr(args, 'log', True)
+    logger = init_logger() if log_tournament else None
 
     print(f'\nTorneio interno: {num_games} jogos por confronto | tempo={time_limit}s\n')
 
@@ -111,6 +131,8 @@ def cmd_tournament(args):
                 name_a=na, name_b=nb,
                 num_games=num_games,
                 progress=True,
+                log_tournament=log_tournament,
+                logger=logger,
             )
             print(res.summary())
             agg = aggregate_metrics(res.all_results)
@@ -121,7 +143,9 @@ def cmd_tournament(args):
 
 def cmd_experiments(args):
     from experiments.analysis import run_all_experiments
-    run_all_experiments(num_games=args.games, time_limit=args.time)
+    log_experiments = getattr(args, 'log', True)
+    logger = init_logger() if log_experiments else None
+    run_all_experiments(num_games=args.games, time_limit=args.time, log_results=log_experiments, logger=logger)
 
 
 def cmd_demo(args):
@@ -158,17 +182,23 @@ def build_parser() -> argparse.ArgumentParser:
                         help='Limite de tempo por jogada (segundos)')
     p_play.add_argument('--gui', action='store_true',
                         help='Usar interface gráfica Pygame')
+    p_play.add_argument('--log', action='store_true',
+                        help='Registrar dados detalhados da partida em log/')
 
     # tournament
     p_tour = sub.add_parser('tournament', help='Torneio interno round-robin')
     p_tour.add_argument('--games', type=int, default=20,
                         help='Número de jogos por confronto')
     p_tour.add_argument('--time', type=float, default=1.0)
+    p_tour.add_argument('--log', action='store_true', default=True,
+                        help='Registrar dados do torneio em log/ (padrão: True)')
 
     # experiments
     p_exp = sub.add_parser('experiments', help='Todos os experimentos analíticos')
     p_exp.add_argument('--games', type=int, default=10)
     p_exp.add_argument('--time', type=float, default=1.0)
+    p_exp.add_argument('--log', action='store_true', default=True,
+                        help='Registrar dados dos experimentos em log/ (padrão: True)')
 
     # demo
     sub.add_parser('demo', help='IA vs IA na interface gráfica (demonstração)')

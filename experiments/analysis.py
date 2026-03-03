@@ -97,7 +97,7 @@ def exp1_minimax_vs_alphabeta(depths=(1, 2, 3, 4, 5), num_positions: int = 5):
 
 # ── Experimento 2: Round-robin de heurísticas ─────────────────────────────────
 
-def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0):
+def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0, log_results: bool = False, logger = None):
     """Round-robin entre h1, h2, h3 usando Iterative Deepening."""
     print('\n=== Experimento 2: Torneio de Heurísticas ===')
 
@@ -116,6 +116,8 @@ def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0):
                 name_a=na, name_b=nb,
                 num_games=num_games,
                 progress=True,
+                log_tournament=log_results,
+                logger=logger,
             )
             print(res.summary())
             agg = aggregate_metrics(res.all_results)
@@ -127,7 +129,7 @@ def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0):
 
 # ── Experimento 3: Impacto da Tabela de Transposição ─────────────────────────
 
-def exp3_tt_impact(depth: int = 4, num_games: int = 10, time_limit: float = 1.0):
+def exp3_tt_impact(depth: int = 4, num_games: int = 10, time_limit: float = 1.0, log_results: bool = False, logger = None):
     """Compara AB com TT vs AB sem TT."""
     print('\n=== Experimento 3: Impacto da TT ===')
 
@@ -139,6 +141,8 @@ def exp3_tt_impact(depth: int = 4, num_games: int = 10, time_limit: float = 1.0)
         name_a='AB+TT', name_b='AB-TT',
         num_games=num_games,
         progress=True,
+        log_tournament=log_results,
+        logger=logger,
     )
     print(res.summary())
     agg_a = aggregate_metrics([gr for gr in res.all_results])
@@ -211,12 +215,17 @@ def plot_nodes_comparison(depths=(1, 2, 3, 4, 5, 6)):
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
-def run_all_experiments(num_games: int = 10, time_limit: float = 1.0):
-    """Executa todos os experimentos em sequência."""
+def run_all_experiments(num_games: int = 10, time_limit: float = 1.0, log_results: bool = False, logger = None):
+    """Executa todos os experimentos em sequência.
+    
+    Args:
+        log_results: Se True, registra logs dos torneios dos experimentos
+        logger: Instância de GameLogger (se None, usa a global)
+    """
     print('Iniciando experimentos... (pode levar vários minutos)')
     exp1_minimax_vs_alphabeta()
-    exp2_heuristic_tournament(num_games=num_games, time_limit=time_limit)
-    exp3_tt_impact(num_games=num_games, time_limit=time_limit)
+    exp2_heuristic_tournament(num_games=num_games, time_limit=time_limit, log_results=log_results, logger=logger)
+    exp3_tt_impact(num_games=num_games, time_limit=time_limit, log_results=log_results, logger=logger)
     exp4_vs_random(num_games=num_games, time_limit=time_limit)
     plot_nodes_comparison()
     print('Experimentos concluídos.')
