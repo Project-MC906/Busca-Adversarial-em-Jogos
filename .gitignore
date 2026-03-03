@@ -1,0 +1,8 @@
+venv/
+objetivo.txt
+relatorio.txt
+algorithms/__pycache__/
+experiments/__pycache__/
+game/__pycache__/
+heuristics/__pycache__/
+ui/__pycache__/
