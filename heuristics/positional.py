@@ -23,11 +23,12 @@ from heuristics.weights import (
     EDGE_BONUS,
     ADVANCE_BONUS_PER_ROW,
 )
+from typing import Optional
 from game.bitboard import iter_bits, popcount, test_bit
 from heuristics.material import evaluate_material
 
 
-def _advance_score(bb: int, kings_bb: int, player: int) -> int:
+def _advance_score(bb: int, kings_bb: int, player: int, bonus_per_row: int = ADVANCE_BONUS_PER_ROW) -> int:
     """
     Bônus de avanço para pedras comuns na direção da promoção.
     Brancas avançam de row 7 → row 0; pretas de row 0 → row 7.
@@ -45,32 +46,40 @@ def _advance_score(bb: int, kings_bb: int, player: int) -> int:
         else:
             # pretas começam em row 0-2, avançam para row 7
             advance = max(0, row - 2)
-        score += advance * ADVANCE_BONUS_PER_ROW
+        score += advance * bonus_per_row
     return score
 
 
-def _center_score(bb: int) -> int:
+def _center_score(bb: int, center_bonus: int = CENTER_BONUS) -> int:
     """Bônus para peças nas casas centrais."""
     score = 0
     for sq in iter_bits(bb):
         if sq in CENTER_BITS:
-            score += CENTER_BONUS
+            score += center_bonus
     return score
 
 
-def _edge_score(bb: int) -> int:
+def _edge_score(bb: int, edge_bonus: int = EDGE_BONUS) -> int:
     """Bônus para peças nas bordas laterais (mais seguras)."""
     score = 0
     for sq in iter_bits(bb):
         _, col = BIT_TO_ROWCOL[sq]
         if col in EDGE_COLS:
-            score += EDGE_BONUS
+            score += edge_bonus
     return score
 
 
-def evaluate_positional(state: GameState) -> int:
+def evaluate_positional(
+    state: GameState,
+    center_bonus: int = CENTER_BONUS,
+    edge_bonus: int = EDGE_BONUS,
+    advance_bonus_per_row: int = ADVANCE_BONUS_PER_ROW,
+) -> int:
     """
     h2: Material + Avanço + Centro + Segurança de borda.
+
+    Aceita pesos opcionais para que outras heurísticas (ex: h3) possam
+    reutilizar esta função com seus próprios valores de configuração.
     """
     mat   = evaluate_material(state)
 
@@ -79,16 +88,16 @@ def evaluate_positional(state: GameState) -> int:
     b_bb  = state.black_bb
 
     # Avanço de pedras comuns
-    w_adv = _advance_score(w_bb, kings, WHITE)
-    b_adv = _advance_score(b_bb, kings, BLACK)
+    w_adv = _advance_score(w_bb, kings, WHITE, advance_bonus_per_row)
+    b_adv = _advance_score(b_bb, kings, BLACK, advance_bonus_per_row)
 
     # Controle de centro
-    w_ctr = _center_score(w_bb)
-    b_ctr = _center_score(b_bb)
+    w_ctr = _center_score(w_bb, center_bonus)
+    b_ctr = _center_score(b_bb, center_bonus)
 
     # Segurança de borda
-    w_edg = _edge_score(w_bb)
-    b_edg = _edge_score(b_bb)
+    w_edg = _edge_score(w_bb, edge_bonus)
+    b_edg = _edge_score(b_bb, edge_bonus)
 
     return (
         mat
