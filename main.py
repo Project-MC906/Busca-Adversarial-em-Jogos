@@ -3,8 +3,8 @@ Damas Brasileiras — Agente de Busca Adversarial
 MC906 – Unicamp
 
 Uso:
-  python main.py play --mode human_vs_ai [--heuristic h1|h2|h3] [--time 1.0] [--gui]
-  python main.py play --mode ai_vs_ai    [--white h1|h2|h3] [--black h1|h2|h3] [--gui]
+  python main.py play --mode human_vs_ai [--heuristic h1|h2|h3|h4] [--time 1.0] [--gui]
+  python main.py play --mode ai_vs_ai    [--white h1|h2|h3|h4] [--black h1|h2|h3|h4] [--gui]
   python main.py tournament [--games 20] [--time 1.0]
   python main.py experiments [--games 10] [--time 1.0]
   python main.py demo        (IA vs IA na GUI, h3 vs h2)
@@ -18,12 +18,13 @@ from experiments.logger import init_logger
 # ── Helpers para criar agentes ────────────────────────────────────────────────
 
 def _get_evaluator(name: str):
-    from heuristics.material   import evaluate_material
-    from heuristics.positional import evaluate_positional
-    from heuristics.full       import evaluate_full
-    mapping = {'h1': evaluate_material, 'h2': evaluate_positional, 'h3': evaluate_full}
+    from heuristics.material     import evaluate_material
+    from heuristics.positional   import evaluate_positional
+    from heuristics.full         import evaluate_full
+    from heuristics.connectivity import evaluate_connectivity
+    mapping = {'h1': evaluate_material, 'h2': evaluate_positional, 'h3': evaluate_full, 'h4': evaluate_connectivity}
     if name not in mapping:
-        print(f'Heurística desconhecida: {name}. Use h1, h2 ou h3.')
+        print(f'Heurística desconhecida: {name}. Use h1, h2, h3 ou h4.')
         sys.exit(1)
     return mapping[name]
 
@@ -172,11 +173,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_play = sub.add_parser('play', help='Jogar uma partida')
     p_play.add_argument('--mode', choices=['human_vs_ai', 'ai_vs_ai'],
                         default='human_vs_ai')
-    p_play.add_argument('--heuristic', choices=['h1', 'h2', 'h3'], default='h3',
+    p_play.add_argument('--heuristic', choices=['h1', 'h2', 'h3', 'h4'], default='h3',
                         help='Heurística da IA (modo human_vs_ai)')
-    p_play.add_argument('--white', choices=['h1', 'h2', 'h3'], default='h3',
+    p_play.add_argument('--white', choices=['h1', 'h2', 'h3', 'h4'], default='h3',
                         help='Heurística das Brancas (modo ai_vs_ai)')
-    p_play.add_argument('--black', choices=['h1', 'h2', 'h3'], default='h2',
+    p_play.add_argument('--black', choices=['h1', 'h2', 'h3', 'h4'], default='h2',
                         help='Heurística das Pretas (modo ai_vs_ai)')
     p_play.add_argument('--time', type=float, default=1.0,
                         help='Limite de tempo por jogada (segundos)')

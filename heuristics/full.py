@@ -1,5 +1,5 @@
 """
-Heurística h3 — Completa (estado da arte).
+Heurística h3.
 
 Combina:
   (1) h2 (Material + Posicional)

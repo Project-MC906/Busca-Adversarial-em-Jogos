@@ -15,6 +15,8 @@ from experiments.tournament import run_tournament, play_game, aggregate_metrics
 from algorithms.minimax           import Minimax
 from algorithms.alpha_beta        import AlphaBeta
 from algorithms.iterative_deepening import IterativeDeepening
+from heuristics.connectivity import evaluate_connectivity
+from heuristics.connectivity import evaluate_connectivity
 from heuristics.material           import evaluate_material
 from heuristics.positional         import evaluate_positional
 from heuristics.full               import evaluate_full
@@ -105,6 +107,7 @@ def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0, log_
         'h1-Material':   make_id_agent(evaluate_material,   time_limit),
         'h2-Posicional': make_id_agent(evaluate_positional, time_limit),
         'h3-Completa':   make_id_agent(evaluate_full,       time_limit),
+        'h4-Conectividade': make_id_agent(evaluate_connectivity, time_limit),
     }
     names  = list(agents.keys())
 
