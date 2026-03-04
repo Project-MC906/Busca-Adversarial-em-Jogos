@@ -25,7 +25,7 @@ from game.bitboard import iter_bits, test_bit, bit
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Move
+# (A) Definição da ação: Move representa uma ação a ∈ A(s)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
@@ -221,7 +221,7 @@ def _generate_simple_moves(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Interface pública
+# (A) Geração de ações: A(s) = generate_moves(s) → list[Move]
 # ─────────────────────────────────────────────────────────────────────────────
 
 def generate_moves(

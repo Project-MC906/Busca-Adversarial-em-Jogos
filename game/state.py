@@ -1,6 +1,12 @@
 """
 Estado do jogo de Damas Brasileiras com representação Bitboard.
 
+Modelagem formal do jogo como (S, A, T, U):
+  S – conjunto de estados (GameState): ver classe GameState abaixo
+  A – ações legais (Move): ver game/moves.py e GameState.get_moves()
+  T – função de transição: ver GameState.apply_move()
+  U – função de utilidade: ver GameState.utility()
+
 Estado encapsula:
   white_bb   – bitboard das peças brancas (pedras + damas)
   black_bb   – bitboard das peças pretas  (pedras + damas)
@@ -32,6 +38,7 @@ from game.moves import Move, generate_moves, will_promote
 class GameState:
     """Representação imutável do estado do jogo."""
 
+    # (S) Representação do estado: três bitboards + turno + contador de progresso
     __slots__ = (
         'white_bb', 'black_bb', 'kings_bb',
         'turn', 'no_progress',
@@ -96,6 +103,7 @@ class GameState:
 
     # ── Interface principal ────────────────────────────────────────────────────
 
+    # (A) Geração de ações: retorna todas as ações legais do estado atual
     def get_moves(self) -> list[Move]:
         if self._moves_cache is None:
             self._moves_cache = generate_moves(
@@ -103,6 +111,7 @@ class GameState:
             )
         return self._moves_cache
 
+    # (T) Função de transição: T(s, a) → s'  (retorna novo estado imutável)
     def apply_move(self, move: Move) -> GameState:
         """Aplica um movimento e retorna o novo estado (imutável)."""
         w = self.white_bb
@@ -162,6 +171,7 @@ class GameState:
             no_progress = no_prog,
         )
 
+    # Teste de terminal: verifica se o estado é final (sem peças, sem movimentos ou empate)
     def is_terminal(self) -> bool:
         if self._terminal_cache is None:
             if self.no_progress >= DRAW_MOVE_LIMIT:
@@ -172,6 +182,7 @@ class GameState:
                 self._terminal_cache = len(self.get_moves()) == 0
         return self._terminal_cache
 
+    # (U) Função de utilidade: U(s) → +INF (brancas vencem), -INF (pretas vencem), 0 (empate)
     def utility(self) -> int:
         """
         Retorna o valor terminal do estado (apenas chamar quando is_terminal() == True).
