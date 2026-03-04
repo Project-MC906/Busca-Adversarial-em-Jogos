@@ -13,11 +13,15 @@ from __future__ import annotations
 from game.state import GameState
 from game.constants import (
     WHITE, BLACK,
-    PIECE_VALUE, KING_VALUE,
-    CENTER_BITS, CENTER_BONUS,
-    EDGE_COLS, EDGE_BONUS,
-    ADVANCE_BONUS_PER_ROW,
+    CENTER_BITS,
+    EDGE_COLS,
     BIT_TO_ROWCOL,
+)
+from heuristics.weights import (
+    PIECE_VALUE, KING_VALUE,
+    CENTER_BONUS,
+    EDGE_BONUS,
+    ADVANCE_BONUS_PER_ROW,
 )
 from game.bitboard import iter_bits, popcount, test_bit
 from heuristics.material import evaluate_material

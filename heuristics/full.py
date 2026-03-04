@@ -15,9 +15,7 @@ from game.state import GameState
 from game.constants import WHITE, BLACK
 from game.moves import generate_moves
 from heuristics.positional import evaluate_positional
-
-# Peso da mobilidade relativa ao material
-MOBILITY_WEIGHT = 3
+from heuristics.weights import MOBILITY_WEIGHT
 
 
 def evaluate_full(state: GameState) -> int:

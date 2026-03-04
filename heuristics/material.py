@@ -11,7 +11,7 @@ Retorna 0 em estados terminais (a utilidade é tratada separadamente).
 from __future__ import annotations
 
 from game.state import GameState
-from game.constants import PIECE_VALUE, KING_VALUE
+from heuristics.weights import PIECE_VALUE, KING_VALUE
 from game.bitboard import popcount
 
 

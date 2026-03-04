@@ -26,12 +26,13 @@ from game.constants import (
 )
 from game.bitboard import iter_bits, popcount, test_bit
 from game.moves import generate_moves
-
-# ── Pesos ─────────────────────────────────────────────────────────────────────
-SUPPORT_BONUS      = 15   # por cada vizinho diagonal amigo
-ISOLATION_PENALTY  = 20   # peça sem nenhum apoio
-THREAT_BONUS       = 40   # por cada peça inimiga ameaçada de captura imediata
-MATERIAL_WEIGHT    = 0.1  # factor leve sobre diferença de material
+from heuristics.weights import (
+    PIECE_VALUE, KING_VALUE,
+    SUPPORT_BONUS,
+    ISOLATION_PENALTY,
+    THREAT_BONUS,
+    MATERIAL_WEIGHT_H4,
+)
 
 
 def _connectivity_score(own_bb: int, enemy_bb: int) -> int:
@@ -97,4 +98,4 @@ def evaluate_connectivity(state: GameState) -> int:
         - (b_pieces * PIECE_VALUE + b_kings * KING_VALUE)
     )
 
-    return int((w_conn - b_conn) + threat_score + MATERIAL_WEIGHT * material)
+    return int((w_conn - b_conn) + threat_score + MATERIAL_WEIGHT_H4 * material)
