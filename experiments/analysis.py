@@ -5,7 +5,7 @@ Experimentos:
   1. Minimax puro vs Alpha-Beta: nós expandidos e profundidade por depth fixa.
   2. Round-robin de heurísticas: h1 vs h2 vs h3.
   3. Impacto das Tabelas de Transposição.
-  4. Curva de profundidade vs tempo (Iterative Deepening).
+  4. C_urva de profundidade vs tempo (Iterative Deepening).
 """
 
 from __future__ import annotations
@@ -107,7 +107,7 @@ def exp2_heuristic_tournament(num_games: int = 20, time_limit: float = 1.0, log_
         'h1-Material':   make_id_agent(evaluate_material,   time_limit),
         'h2-Posicional': make_id_agent(evaluate_positional, time_limit),
         'h3-Completa':   make_id_agent(evaluate_full,       time_limit),
-        'h4-Conectividade': make_id_agent(evaluate_connectivity, time_limit),
+        #'h4-Conectividade': make_id_agent(evaluate_connectivity, time_limit),
     }
     names  = list(agents.keys())
 
@@ -218,7 +218,7 @@ def plot_nodes_comparison(depths=(1, 2, 3, 4, 5, 6)):
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
-def run_all_experiments(num_games: int = 10, time_limit: float = 1.0, log_results: bool = False, logger = None):
+def run_all_experiments(num_games: int = 10, time_limit: float = 0.2, log_results: bool = False, logger = None):
     """Executa todos os experimentos em sequência.
     
     Args:
