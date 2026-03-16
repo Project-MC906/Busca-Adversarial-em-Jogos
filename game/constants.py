@@ -119,12 +119,12 @@ INF          = 10_000_000
 DRAW_MOVE_LIMIT = 20
 
 # ── Pesos das heurísticas posicionais ─────────────────────────────────────────
-# Bônus de posição central (para as 8 casas mais centrais)
+# Bônus de posição central (8 casas simétricas entre os lados)
 CENTER_BITS = frozenset([
-    ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
-    ROWCOL_TO_BIT[(3, 6)], ROWCOL_TO_BIT[(4, 1)],
-    ROWCOL_TO_BIT[(4, 3)], ROWCOL_TO_BIT[(4, 5)],
-    ROWCOL_TO_BIT[(5, 2)], ROWCOL_TO_BIT[(5, 4)],
+    ROWCOL_TO_BIT[(3, 0)], ROWCOL_TO_BIT[(3, 2)],
+    ROWCOL_TO_BIT[(3, 4)], ROWCOL_TO_BIT[(3, 6)],
+    ROWCOL_TO_BIT[(4, 1)], ROWCOL_TO_BIT[(4, 3)],
+    ROWCOL_TO_BIT[(4, 5)], ROWCOL_TO_BIT[(4, 7)],
 ])
 CENTER_BONUS = 10
 

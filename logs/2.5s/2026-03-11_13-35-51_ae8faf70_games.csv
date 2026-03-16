@@ -1,0 +1,6 @@
+timestamp,game_id,white_player,black_player,result,total_moves,white_pieces_final,black_pieces_final,total_time_s,avg_time_per_move_s,white_avg_time_s,black_avg_time_s,white_avg_nodes,black_avg_nodes,white_avg_depth,black_avg_depth,notes,moves_count
+2026-03-11 13:25:05,2b769e34,h2-Posicional,h3-Completa,DRAW,76,2,2,192.80164547099957,2.536863756197363,2.514910354763144,2.5587135857367205,59151,46817,11,11,Partida 1 de 5 do torneio,0
+2026-03-11 13:27:15,4c96cc64,h3-Completa,h2-Posicional,BLACK_WIN,54,0,6,130.03803698800039,2.408111796074081,2.5459641377776143,2.2701560150740248,34290,44589,12,15,Partida 2 de 5 do torneio,0
+2026-03-11 13:29:27,1e7ba6cb,h2-Posicional,h3-Completa,BLACK_WIN,60,0,3,132.6189322549999,2.2103155375833317,2.1292480100665974,2.2912705582333124,39732,30252,17,15,Partida 3 de 5 do torneio,0
+2026-03-11 13:34:05,4b050e43,h3-Completa,h2-Posicional,DRAW,116,1,1,277.7605498799994,2.3944874989655123,2.468413887293113,2.320443371931043,51332,59459,13,16,Partida 4 de 5 do torneio,0
+2026-03-11 13:35:51,426de922,h2-Posicional,h3-Completa,BLACK_WIN,54,0,2,106.2066690900001,1.9667901683333353,1.9605925950000138,1.9728982625556117,37201,28543,19,20,Partida 5 de 5 do torneio,0

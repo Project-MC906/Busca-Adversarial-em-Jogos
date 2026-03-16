@@ -197,7 +197,7 @@ def build_parser() -> argparse.ArgumentParser:
     # experiments
     p_exp = sub.add_parser('experiments', help='Todos os experimentos analíticos')
     p_exp.add_argument('--games', type=int, default=10)
-    p_exp.add_argument('--time', type=float, default=1.0)
+    p_exp.add_argument('--time', type=float, default=0.2)
     p_exp.add_argument('--log', action='store_true', default=True,
                         help='Registrar dados dos experimentos em log/ (padrão: True)')
 

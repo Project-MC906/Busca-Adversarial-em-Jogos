@@ -98,9 +98,14 @@ class IterativeDeepening:
         check_interval   = self.check_interval
         original_expand  = None   # não vamos monkey-patch; usaremos flag periódica
 
+        # Passa referências de tempo para o searcher fazer verificação interna
+        searcher._time_limit = self.time_limit
+        searcher._start_time = start_time
+
         for depth in range(1, self.max_depth + 1):
             searcher.reset_stats()
             searcher.timed_out = False
+            searcher._start_time = start_time  # atualiza a cada iteração
 
             try:
                 candidate, candidate_score = self._alpha_beta_timed(

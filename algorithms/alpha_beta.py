@@ -6,6 +6,7 @@ Alpha-Beta Pruning com:
 """
 
 from __future__ import annotations
+import time
 
 from game.state import GameState
 from game.constants import WHITE, INF
@@ -20,17 +21,20 @@ from algorithms.move_ordering import KillerMoves, HistoryTable, order_moves
 class AlphaBeta:
     """Alpha-Beta Pruning com move ordering, TT e instrumentação."""
 
-    def __init__(self, evaluator=None, use_tt: bool = True):
-        self.evaluator    = evaluator
-        self.use_tt       = use_tt
-        self.tt           = TranspositionTable() if use_tt else None
-        self.killers      = KillerMoves()
-        self.history      = HistoryTable()
+    def __init__(self, evaluator=None, use_tt: bool = True, check_interval: int = 512):
+        self.evaluator      = evaluator
+        self.use_tt         = use_tt
+        self.tt             = TranspositionTable() if use_tt else None
+        self.killers        = KillerMoves()
+        self.history        = HistoryTable()
         self.nodes_expanded = 0
         self.cutoffs        = 0
         self.tt_hits        = 0
         self.depth_reached  = 0
         self.timed_out      = False
+        self.check_interval = check_interval
+        self._time_limit    = None   # definido pelo IterativeDeepening
+        self._start_time    = None   # definido pelo IterativeDeepening
 
     def reset_stats(self):
         self.nodes_expanded = 0
@@ -47,6 +51,15 @@ class AlphaBeta:
             raise TimeoutException()
 
         self.nodes_expanded += 1
+
+        # Verifica timeout periodicamente sem chamar perf_counter a cada nó
+        if (
+            self._time_limit is not None
+            and self.nodes_expanded % self.check_interval == 0
+            and time.perf_counter() - self._start_time >= self._time_limit
+        ):
+            self.timed_out = True
+            raise TimeoutException()
         if current_depth > self.depth_reached:
             self.depth_reached = current_depth
 

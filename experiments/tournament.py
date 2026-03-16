@@ -28,6 +28,8 @@ class GameResult:
     white_metrics:   list[dict]   # métricas por jogada das brancas
     black_metrics:   list[dict]   # métricas por jogada das pretas
     duration_s:      float
+    white_pieces_final: int = 0
+    black_pieces_final: int = 0
 
 
 # ── Agente wrapper ─────────────────────────────────────────────────────────────
@@ -78,11 +80,13 @@ def play_game(
         winner = -1
 
     return GameResult(
-        winner         = winner,
-        moves          = move_count,
-        white_metrics  = white_metrics,
-        black_metrics  = black_metrics,
-        duration_s     = elapsed,
+        winner              = winner,
+        moves               = move_count,
+        white_metrics       = white_metrics,
+        black_metrics       = black_metrics,
+        duration_s          = elapsed,
+        white_pieces_final  = state.white_count,
+        black_pieces_final  = state.black_count,
     )
 
 
@@ -204,8 +208,8 @@ def run_tournament(
                 black_player=black_name,
                 result=result_str,
                 total_moves=gr.moves,
-                white_pieces_final=0,  # não temos no GameResult ainda
-                black_pieces_final=0,
+                white_pieces_final=gr.white_pieces_final,
+                black_pieces_final=gr.black_pieces_final,
                 total_time_s=gr.duration_s,
                 avg_time_per_move_s=gr.duration_s / max(gr.moves, 1),
                 white_avg_time_s=white_avg_time,
