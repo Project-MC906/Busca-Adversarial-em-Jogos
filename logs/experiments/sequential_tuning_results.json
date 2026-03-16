@@ -1,0 +1,216 @@
+{
+  "num_games_per_pairing": 6,
+  "time_limit_s": 0.25,
+  "final_recommendation": {
+    "piece_value": 80,
+    "king_value": 240,
+    "center_bonus": 10,
+    "edge_bonus": 0,
+    "advance_bonus_per_row": 5,
+    "centrality_mode": "core8"
+  },
+  "stages": {
+    "stage1_centrality": {
+      "winner": "core8",
+      "winner_params": {
+        "piece_value": 100,
+        "king_value": 300,
+        "center_bonus": 10,
+        "edge_bonus": 5,
+        "advance_bonus_per_row": 5,
+        "centrality_mode": "core8"
+      },
+      "table": {
+        "core8": {
+          "points": 7.0,
+          "wins": 3,
+          "losses": 1,
+          "draws": 8,
+          "games": 12,
+          "avg_depth": 12.505110638766332,
+          "avg_nodes_per_move": 16368.810635379,
+          "avg_time_per_move_s": 0.24191869971001234
+        },
+        "extended12": {
+          "points": 4.5,
+          "wins": 1,
+          "losses": 4,
+          "draws": 7,
+          "games": 12,
+          "avg_depth": 13.196369559977295,
+          "avg_nodes_per_move": 16741.38038364941,
+          "avg_time_per_move_s": 0.23684362024290073
+        },
+        "distance": {
+          "points": 6.5,
+          "wins": 3,
+          "losses": 2,
+          "draws": 7,
+          "games": 12,
+          "avg_depth": 12.864978297602944,
+          "avg_nodes_per_move": 15747.164403058832,
+          "avg_time_per_move_s": 0.23895358542822312
+        }
+      }
+    },
+    "stage2_piece_weights": {
+      "winner": "pv80_kv240",
+      "winner_params": {
+        "piece_value": 80,
+        "king_value": 240,
+        "center_bonus": 10,
+        "edge_bonus": 5,
+        "advance_bonus_per_row": 5,
+        "centrality_mode": "core8"
+      },
+      "table": {
+        "pv80_kv240": {
+          "points": 14.5,
+          "wins": 11,
+          "losses": 6,
+          "draws": 7,
+          "games": 24,
+          "avg_depth": 13.161610677293487,
+          "avg_nodes_per_move": 13424.623668367545,
+          "avg_time_per_move_s": 0.23484304695528613
+        },
+        "pv100_kv300": {
+          "points": 12.0,
+          "wins": 6,
+          "losses": 6,
+          "draws": 12,
+          "games": 24,
+          "avg_depth": 12.730801489050029,
+          "avg_nodes_per_move": 14908.787938480778,
+          "avg_time_per_move_s": 0.23924891401555204
+        },
+        "pv120_kv360": {
+          "points": 10.0,
+          "wins": 6,
+          "losses": 10,
+          "draws": 8,
+          "games": 24,
+          "avg_depth": 13.308884560440493,
+          "avg_nodes_per_move": 14645.493227729452,
+          "avg_time_per_move_s": 0.23763760145214718
+        },
+        "pv100_kv250": {
+          "points": 12.0,
+          "wins": 6,
+          "losses": 6,
+          "draws": 12,
+          "games": 24,
+          "avg_depth": 12.645867924773402,
+          "avg_nodes_per_move": 14450.280447607456,
+          "avg_time_per_move_s": 0.24119602666096593
+        },
+        "pv100_kv350": {
+          "points": 11.5,
+          "wins": 5,
+          "losses": 6,
+          "draws": 13,
+          "games": 24,
+          "avg_depth": 12.406740698949012,
+          "avg_nodes_per_move": 15021.429099361007,
+          "avg_time_per_move_s": 0.2406456887027519
+        }
+      }
+    },
+    "stage3_edge_criterion": {
+      "winner": "edge_off",
+      "winner_params": {
+        "piece_value": 80,
+        "king_value": 240,
+        "center_bonus": 10,
+        "edge_bonus": 0,
+        "advance_bonus_per_row": 5,
+        "centrality_mode": "core8"
+      },
+      "table": {
+        "edge_off": {
+          "points": 4.0,
+          "wins": 2,
+          "losses": 0,
+          "draws": 4,
+          "games": 6,
+          "avg_depth": 10.27212389380531,
+          "avg_nodes_per_move": 13561.358407079646,
+          "avg_time_per_move_s": 0.2461366460840501
+        },
+        "edge_on": {
+          "points": 2.0,
+          "wins": 0,
+          "losses": 2,
+          "draws": 4,
+          "games": 6,
+          "avg_depth": 10.27212389380531,
+          "avg_nodes_per_move": 13561.358407079646,
+          "avg_time_per_move_s": 0.2461366460840501
+        }
+      }
+    },
+    "stage4_advance_bonus": {
+      "winner": "adv5",
+      "winner_params": {
+        "piece_value": 80,
+        "king_value": 240,
+        "center_bonus": 10,
+        "edge_bonus": 0,
+        "advance_bonus_per_row": 5,
+        "centrality_mode": "core8"
+      },
+      "table": {
+        "adv0": {
+          "points": 12.5,
+          "wins": 5,
+          "losses": 4,
+          "draws": 15,
+          "games": 24,
+          "avg_depth": 12.12473895653829,
+          "avg_nodes_per_move": 16012.991923544092,
+          "avg_time_per_move_s": 0.24344355215213098
+        },
+        "adv3": {
+          "points": 12.0,
+          "wins": 6,
+          "losses": 6,
+          "draws": 12,
+          "games": 24,
+          "avg_depth": 12.041639036223284,
+          "avg_nodes_per_move": 15039.51742050483,
+          "avg_time_per_move_s": 0.24193990313171906
+        },
+        "adv5": {
+          "points": 13.0,
+          "wins": 5,
+          "losses": 3,
+          "draws": 16,
+          "games": 24,
+          "avg_depth": 12.954543021046714,
+          "avg_nodes_per_move": 16320.486581043184,
+          "avg_time_per_move_s": 0.24292380256042947
+        },
+        "adv7": {
+          "points": 10.5,
+          "wins": 3,
+          "losses": 6,
+          "draws": 15,
+          "games": 24,
+          "avg_depth": 13.17569787954244,
+          "avg_nodes_per_move": 16027.401984683725,
+          "avg_time_per_move_s": 0.24183760472042973
+        },
+        "adv10": {
+          "points": 12.0,
+          "wins": 3,
+          "losses": 3,
+          "draws": 18,
+          "games": 24,
+          "avg_depth": 12.14743542524765,
+          "avg_nodes_per_move": 16269.093585354236,
+          "avg_time_per_move_s": 0.24164179568869643
+        }
+      }
+    }
+  }
+}
