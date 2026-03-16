@@ -111,26 +111,31 @@ BLACK_FORWARD_DIRS = ('SW', 'SE')   # pretas  movem para linha 7
 ALL_DIRS = ('NW', 'NE', 'SW', 'SE')
 
 # ── Valores da função de avaliação ────────────────────────────────────────────
-PIECE_VALUE  = 100
-KING_VALUE   = 300
+PIECE_VALUE  = 80
+KING_VALUE   = 240
 INF          = 10_000_000
 
 # ── Limite de empate (20 lances sem captura ou avanço de pedra) ───────────────
 DRAW_MOVE_LIMIT = 20
 
 # ── Pesos das heurísticas posicionais ─────────────────────────────────────────
-# Bônus de posição central (8 casas simétricas entre os lados)
+# Bônus de posição central (8 casas simétricas entre os lados)->
+# Alterado para center8, o qual foi achado como mais eficaz via "sequential_tuning"
 CENTER_BITS = frozenset([
-    ROWCOL_TO_BIT[(3, 0)], ROWCOL_TO_BIT[(3, 2)],
-    ROWCOL_TO_BIT[(3, 4)], ROWCOL_TO_BIT[(3, 6)],
-    ROWCOL_TO_BIT[(4, 1)], ROWCOL_TO_BIT[(4, 3)],
-    ROWCOL_TO_BIT[(4, 5)], ROWCOL_TO_BIT[(4, 7)],
+    # ROWCOL_TO_BIT[(3, 0)], ROWCOL_TO_BIT[(3, 2)],
+    # ROWCOL_TO_BIT[(3, 4)], ROWCOL_TO_BIT[(3, 6)],
+    # ROWCOL_TO_BIT[(4, 1)], ROWCOL_TO_BIT[(4, 3)],
+    #ROWCOL_TO_BIT[(4, 5)], ROWCOL_TO_BIT[(4, 7)],
+    ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
+    ROWCOL_TO_BIT[(3, 6)], ROWCOL_TO_BIT[(4, 1)],
+    ROWCOL_TO_BIT[(4, 3)], ROWCOL_TO_BIT[(4, 5)],
+    ROWCOL_TO_BIT[(5, 2)], ROWCOL_TO_BIT[(5, 4)],
 ])
 CENTER_BONUS = 10
 
 # Bônus de borda (proteção lateral)
 EDGE_COLS = frozenset([0, 7])
-EDGE_BONUS = 5
+EDGE_BONUS = 0
 
 # Bônus de avanço (por fileiras percorridas)
 ADVANCE_BONUS_PER_ROW = 5  # por linha avançada em direção à promoção
