@@ -20,7 +20,7 @@ from pathlib import Path
 from experiments.analysis import make_id_agent
 from experiments.tournament import aggregate_metrics, run_tournament
 from game.bitboard import iter_bits, popcount, test_bit
-from game.constants import BIT_TO_ROWCOL, CENTER_BITS, EDGE_COLS, WHITE, BLACK
+from game.constants import BIT_TO_ROWCOL, CENTER_BITS, FOUR_CENTER_BITS, SIX_CENTER_BITS, EIGHT_CENTER_BITS, EDGE_COLS, WHITE, BLACK
 from game.state import GameState
 
 
@@ -71,12 +71,26 @@ def _advance_score(bb: int, kings_bb: int, player: int, advance_bonus_per_row: i
 
 def _center_score(bb: int, mode: str, center_bonus: int) -> int:
     score = 0
+    if mode == "four":
+        for sq in iter_bits(bb):
+            if sq in FOUR_CENTER_BITS:
+                score += center_bonus
+        return score
+    if mode == "six":
+        for sq in iter_bits(bb):
+            if sq in SIX_CENTER_BITS:
+                score += center_bonus
+        return score
+    if mode == "eight":
+        for sq in iter_bits(bb):
+            if sq in EIGHT_CENTER_BITS:
+                score += center_bonus
+        return score
     if mode == "core8":
         for sq in iter_bits(bb):
             if sq in CENTER_BITS:
                 score += center_bonus
         return score
-
     if mode == "extended12":
         half = max(1, center_bonus // 2)
         for sq in iter_bits(bb):
@@ -85,12 +99,10 @@ def _center_score(bb: int, mode: str, center_bonus: int) -> int:
             elif sq in EXTENDED_CENTER_BITS:
                 score += half
         return score
-
     if mode == "distance":
         for sq in iter_bits(bb):
             score += _distance_center_value(sq, center_bonus)
         return score
-
     raise ValueError(f"centrality_mode invalido: {mode}")
 
 
@@ -240,6 +252,9 @@ def run_sequential_tuning(num_games: int, time_limit: float, output_path: str):
     stage_results = {}
 
     stage1_variants = {
+        "four": replace(base, centrality_mode="four"),
+        "six": replace(base, centrality_mode="six"),
+        "eight": replace(base, centrality_mode="eight"),
         "core8": replace(base, centrality_mode="core8"),
         "extended12": replace(base, centrality_mode="extended12"),
         "distance": replace(base, centrality_mode="distance"),
@@ -328,8 +343,8 @@ def run_sequential_tuning(num_games: int, time_limit: float, output_path: str):
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Tuning sequencial da heuristica posicional")
-    parser.add_argument("--games", type=int, default=8, help="Jogos por confronto")
-    parser.add_argument("--time", type=float, default=0.35, help="Tempo por jogada (segundos)")
+    parser.add_argument("--games", type=int, default=20, help="Jogos por confronto")
+    parser.add_argument("--time", type=float, default=0.1, help="Tempo por jogada (segundos)")
     parser.add_argument(
         "--output",
         type=str,

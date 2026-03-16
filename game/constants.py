@@ -118,19 +118,32 @@ INF          = 10_000_000
 # ── Limite de empate (20 lances sem captura ou avanço de pedra) ───────────────
 DRAW_MOVE_LIMIT = 20
 
-# ── Pesos das heurísticas posicionais ─────────────────────────────────────────
-# Bônus de posição central (8 casas simétricas entre os lados)->
-# Alterado para center8, o qual foi achado como mais eficaz via "sequential_tuning"
+
 CENTER_BITS = frozenset([
-    # ROWCOL_TO_BIT[(3, 0)], ROWCOL_TO_BIT[(3, 2)],
-    # ROWCOL_TO_BIT[(3, 4)], ROWCOL_TO_BIT[(3, 6)],
-    # ROWCOL_TO_BIT[(4, 1)], ROWCOL_TO_BIT[(4, 3)],
-    #ROWCOL_TO_BIT[(4, 5)], ROWCOL_TO_BIT[(4, 7)],
+    ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
+    ROWCOL_TO_BIT[(4,3)], ROWCOL_TO_BIT[(4, 5)]
+])
+
+FOUR_CENTER_BITS = frozenset([
+    ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
+    ROWCOL_TO_BIT[(4,3)], ROWCOL_TO_BIT[(4, 5)]
+])
+
+SIX_CENTER_BITS = frozenset([
     ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
     ROWCOL_TO_BIT[(3, 6)], ROWCOL_TO_BIT[(4, 1)],
     ROWCOL_TO_BIT[(4, 3)], ROWCOL_TO_BIT[(4, 5)],
-    ROWCOL_TO_BIT[(5, 2)], ROWCOL_TO_BIT[(5, 4)],
 ])
+
+EIGHT_CENTER_BITS = frozenset([
+    ROWCOL_TO_BIT[(3, 2)], ROWCOL_TO_BIT[(3, 4)],
+    ROWCOL_TO_BIT[(3, 6)], ROWCOL_TO_BIT[(4, 1)],
+    ROWCOL_TO_BIT[(4, 3)], ROWCOL_TO_BIT[(4, 5)],
+    ROWCOL_TO_BIT[(3,0)], ROWCOL_TO_BIT[(4,7)],
+])
+
+
+
 CENTER_BONUS = 10
 
 # Bônus de borda (proteção lateral)
